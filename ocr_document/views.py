@@ -150,3 +150,30 @@ class SearchByName(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
+# ---------------------------------------------
+# Search by OCR text
+# ---------------------------------------------
+class SearchByOCR(APIView):
+
+    def get(self, request):
+        try:
+            query = request.GET.get("file_content", "").strip()
+            if not query:
+                return Response({"error": "Query parameter 'file_content' is required"}, status=400)
+
+            results = Document.objects.filter(ocr_text__icontains=query)
+            serializer = DocumentSerializer(results, many=True)
+            if not serializer.data:
+                return Response(
+                    {"message": "No documents found"},
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                {"message": "OCR search results",
+                "count": len(serializer.data),
+                "data": serializer.data},
+                status=200
+            )
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
