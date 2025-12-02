@@ -122,3 +122,31 @@ class ListDocuments(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
+# ---------------------------------------------
+# Search by Name
+# ---------------------------------------------
+class SearchByName(APIView):
+
+    def get(self, request):
+        try:
+            query = request.GET.get("filename", "").strip()
+            if not query:
+                return Response({"error": "Query parameter 'filename' is required"}, status=400)
+
+            results = Document.objects.filter(filename__icontains=query)
+            serializer = DocumentSerializer(results, many=True)
+            if not serializer.data:
+                return Response(
+                    {"message": "No documents found"},
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                {"message": "Search results",
+                "count": len(serializer.data),
+                "data": serializer.data},
+                status=200
+            )
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
