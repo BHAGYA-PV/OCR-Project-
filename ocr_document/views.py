@@ -95,3 +95,30 @@ class UploadDocument(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+# ---------------------------------------------
+# List Documents
+# ---------------------------------------------
+class ListDocuments(APIView):
+
+    def get(self, request):
+        try:
+            documents = Document.objects.all().order_by("-uploaded_date")
+            serializer = DocumentSerializer(documents, many=True)
+            if not serializer.data:
+                return Response(
+                    {"message": "No documents found"},
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                {
+                    "message": "Documents fetched successfully",
+                    "count": len(serializer.data),
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
