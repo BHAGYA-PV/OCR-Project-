@@ -27,7 +27,7 @@ def run_ocr(doc):
         if "image" in mime_type:
             try:
                 img = Image.open(file_path)
-                doc.ocr_text = pytesseract.image_to_string(img)
+                doc.ocr_text = pytesseract.image_to_string(img, config='--oem 1 --psm 6')
             except:
                 doc.ocr_text = ""
         # PDF
@@ -48,7 +48,7 @@ def run_ocr(doc):
                 pass
             # Fallback to OCR on PDF images
             try:
-                pages = convert_from_path(file_path, poppler_path=settings.POPPLER_PATH)
+                pages = convert_from_path(file_path, poppler_path=settings.POPPLER_PATH, dpi=150)
                 text = ""
                 for p in pages:
                     text += pytesseract.image_to_string(p)
@@ -177,3 +177,4 @@ class SearchByOCR(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
